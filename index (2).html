@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="kk"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>BilimLab – Білімді игеру әдістері</title>
+<style>
+:root{--g1:#e8ecff;--g2:#f3e8ff;--g3:#e0f7fa;--card:rgba(255,255,255,.82);--tx:#1b2033;--mu:#586079;--ac:#4f46e5;--ac2:#e3e6ff;--bd:rgba(80,90,140,.22);--ok:#15803d;--bad:#dc2626;--ln:'79,70,229';box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--g1:#0a1024;--g2:#1a1038;--g3:#06222e;--card:rgba(24,29,52,.82);--tx:#eef0fa;--mu:#a3abc6;--ac:#8b93ff;--ac2:#2a3060;--bd:rgba(150,160,220,.22);--ok:#4ade80;--bad:#f87171;--ln:'139,147,255'}}
+:root[data-theme="dark"]{--g1:#0a1024;--g2:#1a1038;--g3:#06222e;--card:rgba(24,29,52,.82);--tx:#eef0fa;--mu:#a3abc6;--ac:#8b93ff;--ac2:#2a3060;--bd:rgba(150,160,220,.22);--ok:#4ade80;--bad:#f87171;--ln:'139,147,255'}
+*{box-sizing:border-box}
+body{margin:0;color:var(--tx);font-family:system-ui,Arial,sans-serif;line-height:1.55;background:linear-gradient(120deg,var(--g1),var(--g2),var(--g3));background-size:300% 300%;animation:mv 18s ease infinite;min-height:100vh}
+@keyframes mv{50%{background-position:100% 50%}}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+header,main,footer{position:relative;z-index:1}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:10px 18px;background:var(--card);backdrop-filter:blur(10px);border-bottom:1px solid var(--bd);position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+.logo{font-weight:800;font-size:20px;color:var(--ac)}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;border:1px solid var(--bd);background:var(--card);color:var(--tx);padding:8px 14px;border-radius:10px;transition:.15s}
+button:hover:not(:disabled){transform:translateY(-1px);border-color:var(--ac)}button:disabled{opacity:.45;cursor:default}
+button.on,.pri{background:var(--ac);color:#fff;border-color:var(--ac)}
+main{max-width:980px;margin:0 auto;padding:16px}
+section{display:none}section.on{display:block}
+.card{background:var(--card);backdrop-filter:blur(8px);border:1px solid var(--bd);border-radius:18px;padding:22px;box-shadow:0 8px 30px rgba(0,0,0,.12)}
+h2{margin:0 0 10px;color:var(--ac);font-size:26px}h3,h4{margin:14px 0 6px}
+li{margin:5px 0}.mu{color:var(--mu)}.small{font-size:13px}
+#slide{animation:fi .45s}@keyframes fi{from{opacity:0;transform:translateY(12px)}}
+.sn{float:right;font-size:46px;font-weight:800;opacity:.15}
+.ex{background:var(--ac2);border-left:4px solid var(--ac);padding:10px 14px;border-radius:8px;margin:12px 0}
+.sim,.quiz{border:1px dashed var(--ac);border-radius:14px;padding:14px;margin-top:14px}.sim:empty{display:none}
+.quiz button{margin:4px 6px 4px 0}.quiz .good{background:var(--ok);color:#fff}.quiz .wrong{background:var(--bad);color:#fff}
+.fb{font-weight:600}
+.ctl{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:8px}
+#pgw{height:6px;background:var(--ac2);border-radius:6px;margin-bottom:12px;overflow:hidden}#pg{height:100%;background:var(--ac);transition:width .4s}
+table{border-collapse:collapse;width:100%}td,th{border:1px solid var(--bd);padding:7px;text-align:left}th{background:var(--ac2)}
+.bar{display:grid;grid-template-columns:130px 1fr 46px;gap:8px;align-items:center;margin:6px 0;cursor:pointer}
+.bar i{display:block;height:16px;border-radius:8px;background:var(--mu);transition:width 1s}.bar i.a{background:var(--ac)}
+label{margin-right:12px;display:inline-block}input[type=text],#bi{width:100%;padding:9px;border-radius:10px;border:1px solid var(--bd);background:var(--card);color:var(--tx);font:inherit}
+.res{margin-top:10px;padding:10px;background:var(--ac2);border-radius:10px}
+.pics{display:grid;grid-template-columns:1fr 1fr;gap:12px;max-width:340px;margin:10px auto}
+.pic{aspect-ratio:1;border-radius:16px;display:grid;place-items:center;font-size:68px;cursor:pointer;overflow:hidden;box-shadow:0 6px 16px rgba(0,0,0,.25);background:linear-gradient(135deg,#6366f1,#ec4899)}
+.pic:nth-child(2){background:linear-gradient(135deg,#06b6d4,#3b82f6)}.pic:nth-child(3){background:linear-gradient(135deg,#f59e0b,#ef4444)}.pic:nth-child(4){background:linear-gradient(135deg,#10b981,#84cc16)}
+.pic img{width:100%;height:100%;object-fit:cover}
+.cells,.pool{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:12px 0}
+.cells span{width:38px;height:44px;border:2px solid var(--ac);border-radius:8px;display:grid;place-items:center;font-weight:700;font-size:20px;cursor:pointer}
+.pool button{width:40px;height:40px;padding:0;font-weight:700}
+.msg{min-height:28px;text-align:center;font-weight:600}.ok{color:var(--ok)}.bad{color:var(--bad)}
+.grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px}@media(max-width:760px){.grid{grid-template-columns:1fr}.bar{grid-template-columns:100px 1fr 40px}}
+.stats{display:flex;gap:10px;justify-content:center;margin-bottom:8px}.stats div{background:var(--ac2);border-radius:12px;padding:8px 16px;text-align:center}.stats b{display:block;font-size:22px;color:var(--ac)}
+#wrapw{position:relative;width:min(420px,100%);margin:10px auto}
+#wheel{width:100%;transition:transform 5s cubic-bezier(.12,.7,.1,1);filter:drop-shadow(0 8px 14px rgba(0,0,0,.35))}
+#ptr{position:absolute;top:-10px;left:50%;transform:translateX(-50%);font-size:34px;color:var(--bad);z-index:2;text-shadow:0 2px 4px rgba(0,0,0,.4)}
+#go{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:78px;height:78px;border-radius:50%;font-weight:800;padding:0;z-index:2}
+.chip{display:inline-block;margin:3px;padding:4px 10px;border-radius:20px;background:var(--ac2);font-size:14px}.chip.gone{text-decoration:line-through;opacity:.4}
+#hist{padding-left:20px;font-size:14px}
+.box{background:var(--ac2);border-radius:14px;padding:16px;margin-top:14px;text-align:center}
+.cf{position:fixed;left:50%;top:40%;font-size:26px;pointer-events:none;z-index:9;animation:cf 1.7s ease-out forwards}@keyframes cf{to{transform:translate(var(--x),var(--y)) rotate(540deg);opacity:0}}
+footer{text-align:center;padding:18px;color:var(--mu);font-size:13px}
+.opt{display:block;width:100%;text-align:left;margin:6px 0}.opt.good{background:var(--ok);color:#fff}.opt.wrong{background:var(--bad);color:#fff}
+.jg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.jh{text-align:center;font-weight:700;background:var(--ac2);border-radius:10px;padding:8px;font-size:14px}.jb{font-size:22px;font-weight:800;padding:18px 0;background:var(--ac);color:#fff}.jb:disabled{background:var(--ac2)}
+</style></head><body>
+<canvas id="bg"></canvas>
+<header><div class="logo">🧠 BilimLab</div>
+<nav><button class="on" data-t="s1">📊 Презентация</button><button data-t="pr">🎮 Практика</button></nav></header>
+<main>
+<div id="sub" style="display:none;gap:6px;flex-wrap:wrap;margin-bottom:12px"><button data-t="s4">⚡ Жылдамдыққа сұрақ жауап</button><button data-t="s2">🧩 4 сурет 1 сөз</button><button data-t="s3">🧮 Логика</button><button data-t="s5">🏆 Jeopardy</button></div>
+<section id="s1" class="on"><div class="card"><div id="pgw"><div id="pg"></div></div><div id="slide"></div>
+<div class="ctl"><button id="pv">← Артқа</button><span class="mu" id="cnt"></span><button id="nx" class="pri">Алға →</button></div></div></section>
+
+<section id="s2"><div class="card">
+<h2>Кері байланыс: 4 сурет – 1 сөз <span class="mu" id="gn" style="font-size:16px"></span></h2>
+<div class="pics" id="pics"></div><p class="mu small" style="text-align:center">Суретті басып, өз фотоңызды жүктеп ауыстыруға болады.</p>
+<div class="cells" id="cells"></div><div class="pool" id="pool"></div><div class="msg" id="gm"></div>
+<div class="ctl"><button id="hb">💡 Анықтама</button><span>Ұпай: <b id="sc">0</b></span><button id="gx" class="pri">Келесі сөз →</button></div>
+<p class="mu" id="hint"></p></div></section>
+
+<section id="s3"><div class="grid"><div class="card">
+<h2>🎡 Лотерея: логикалық есептер</h2>
+<div class="stats"><div><b id="left">10</b>қалды</div><div><b id="done">0</b>/5 есеп</div></div>
+<div id="wrapw"><div id="ptr">▼</div><canvas id="wheel" width="560" height="560"></canvas><button id="go" class="pri">АЙНАЛТУ</button></div>
+<div style="text-align:center"><button id="rst">↺ Қайта бастау</button></div><div id="res"></div></div>
+<aside class="card"><h3 style="margin-top:0">👥 Қатысушылар</h3><div id="chips"></div><h3>📜 Тарих</h3><ol id="hist"></ol></aside></div></section>
+<section id="s4"><div class="card"><h2>⚡ Жылдамдыққа сұрақ жауап</h2><div id="ebox"></div></div></section>
+<section id="s5"><div class="card"><h2>🏆 Jeopardy: 2 топқа арналған ойын</h2><div id="jbox"></div></div></section>
+</main>
+<footer>BilimLab · Белсенді оқу порталы</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+let lastP='s4';
+function showT(t){const pr=t!='s1';document.querySelectorAll('section').forEach(e=>e.classList.toggle('on',e.id==t));$('sub').style.display=pr?'flex':'none';document.querySelectorAll('nav button').forEach(b=>b.classList.toggle('on',pr?b.dataset.t=='pr':b.dataset.t=='s1'));document.querySelectorAll('#sub button').forEach(b=>b.classList.toggle('on',b.dataset.t==t))}
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>showT(b.dataset.t=='pr'?lastP:b.dataset.t));
+document.querySelectorAll('#sub button').forEach(b=>b.onclick=()=>{lastP=b.dataset.t;showT(lastP)});
+// animated background: neural network
+const cv=$('bg'),cx=cv.getContext('2d');let ps=[];
+function rs(){cv.width=innerWidth;cv.height=innerHeight;ps=Array.from({length:Math.min(80,innerWidth/16|0)},()=>({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-.5)*.6,vy:(Math.random()-.5)*.6}))}
+function an(){const c=getComputedStyle(document.documentElement).getPropertyValue('--ln').replace(/'/g,'').trim();cx.clearRect(0,0,cv.width,cv.height);
+ps.forEach(p=>{p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>cv.width)p.vx*=-1;if(p.y<0||p.y>cv.height)p.vy*=-1;cx.fillStyle=`rgba(${c},.7)`;cx.beginPath();cx.arc(p.x,p.y,2.5,0,7);cx.fill()});
+for(let i=0;i<ps.length;i++)for(let j=i+1;j<ps.length;j++){const d=Math.hypot(ps[i].x-ps[j].x,ps[i].y-ps[j].y);if(d<140){cx.strokeStyle=`rgba(${c},${.35*(1-d/140)})`;cx.beginPath();cx.moveTo(ps[i].x,ps[i].y);cx.lineTo(ps[j].x,ps[j].y);cx.stroke()}}
+requestAnimationFrame(an)}
+addEventListener('resize',rs);rs();an();
+
+// ===== simulators =====
+function pyr(el){const L=[["Дәріс тыңдау",5],["Оқу",10],["Аудио-визуал",20],["Демонстрация",30],["Пікірталас",50],["Практика",75],["Басқаға үйрету",90]];
+el.innerHTML='<h4>🎮 Симулятор: есте сақтау деңгейі</h4><p class="mu small">Әдісті басып көріңіз.</p>'+L.map(([n,v],i)=>`<div class="bar" data-i="${i}"><span>${n}</span><span><i class="${i>3?'a':''}" style="width:0" data-w="${v}"></i></span><b>${v}%</b></div>`).join('')+'<p class="fb" id="pt"></p><p class="mu small">Ескерту: бұл танымал «оқу пирамидасы» моделі, пайыздар шамамен берілген, ғылыми зерттеулерде талас бар.</p>';
+setTimeout(()=>el.querySelectorAll('i').forEach(i=>i.style.width=i.dataset.w+'%'),60);
+el.querySelectorAll('.bar').forEach(b=>b.onclick=()=>{const i=+b.dataset.i;$('pt').textContent=`${L[i][0]}: ${i>3?'белсенді':'пассивті'} әдіс, шамамен ${L[i][1]}% сақталады.`})}
+function es(el){const F=["Қызба бар","Жөтел бар","Дене ауруы бар","Тамақ ауруы бар"];
+el.innerHTML='<h4>🎮 Симулятор: сараптамалық жүйе (IF–THEN)</h4><p class="mu small">Белгілерді таңдаңыз, жүйе ережелер бойынша қорытынды шығарады.</p>'+F.map((f,i)=>`<label><input type="checkbox"> ${f}</label>`).join('')+'<div class="res" id="esr"></div><p class="mu small">Оқу мақсатындағы үлгі, медициналық диагноз емес.</p>';
+const run=()=>{const [a,b,c,d]=[...el.querySelectorAll('input')].map(x=>x.checked),r=[];
+if(a&&b&&c)r.push("R1: ЕГЕР қызба ЖӘНЕ жөтел ЖӘНЕ дене ауруы, ОНДА тұмау ықтимал.");
+if(!a&&b&&d)r.push("R2: ЕГЕР қызба жоқ, жөтел ЖӘНЕ тамақ ауруы бар, ОНДА суық тию ықтимал.");
+if(a&&d&&!b)r.push("R3: ЕГЕР қызба ЖӘНЕ тамақ ауруы бар, жөтел жоқ, ОНДА ангина: дәрігерге көріну керек.");
+$('esr').innerHTML=r.length?'✅ Орындалған ережелер:<br>'+r.join('<br>'):'⚠️ Ереже табылмады: білім базасын толықтыру керек (білім инженерінің міндеті).'};
+el.querySelectorAll('input').forEach(i=>i.onchange=run);run()}
+function del(el){let E,r;const init=()=>{E=[5,10,15,30,50];r=1;draw()};
+function draw(){const s=[...E].sort((x,y)=>x-y),med=s[2],rg=s[4]-s[0];
+el.innerHTML=`<h4>🎮 Симулятор: Delphi турлары</h4><p><b>Сұрақ:</b> 2035 жылы Қазақстанда электромобильдің үлесі неше % болады?</p>`+E.map((v,i)=>`<div class="bar"><span>Сарапшы ${"ABCDE"[i]}</span><span><i class="a" style="width:${v*1.6}%"></i></span><b>${v}%</b></div>`).join('')+`<p>Тур: <b>${r}</b> · Медиана: <b>${med}%</b> · Аралық: <b>${rg}</b></p><p class="fb">${rg<=5?'✅ Консенсусқа жетті, сұрау тоқтайды.':'Сарапшылар топтық нәтижені көріп, бағасын қайта қарайды.'}</p><button id="dn" class="pri" ${rg<=5?'disabled':''}>Келесі тур →</button> <button id="dr">↺ Басынан</button>`;
+$('dn').onclick=()=>{E=E.map(v=>Math.round(v+(med-v)*.45));r++;draw()};$('dr').onclick=init}
+init()}
+function br(el){let ideas=[],t=60,iv,ph=0;const esc=s=>s.replace(/[<>&]/g,'');
+function draw(){el.innerHTML=`<h4>🎮 Симулятор: миға шабуыл</h4><p><b>Тақырып:</b> Мектепте қағаз ысырабын қалай азайтуға болады?</p>`+(ph==0?`<button id="bs" class="pri">▶ Бастау (60 с)</button>`:ph==1?`<p>⏱ <b id="tm">${t}</b> с · Идея саны: <b>${ideas.length}</b> · Сынауға болмайды!</p><input id="bi" placeholder="Идеяңызды жазып, Enter басыңыз"><ul>${ideas.map(x=>`<li>${x.t}</li>`).join('')}</ul><button id="bf">Аяқтау</button>`:`<p>Бағалау кезеңі: ұнаған идеяларға дауыс беріңіз.</p><ul>${ideas.map((x,i)=>`<li>${x.t} <button data-i="${i}">👍 ${x.v}</button></li>`).join('')}</ul><p class="fb">${ideas.length?'🏆 Көш бастап тұр: '+[...ideas].sort((a,b)=>b.v-a.v)[0].t:'Идея жазылмады.'}</p><button id="bs">↺ Қайта</button>`);
+if($('bs'))$('bs').onclick=()=>{ideas=[];t=60;ph=1;draw();clearInterval(iv);iv=setInterval(()=>{if(!document.body.contains(el)){clearInterval(iv);return}t--;if($('tm'))$('tm').textContent=t;if(t<=0){clearInterval(iv);ph=2;draw()}},1000)};
+if($('bi')){$('bi').focus();$('bi').onkeydown=e=>{if(e.key=='Enter'&&e.target.value.trim()){ideas.push({t:esc(e.target.value.trim()),v:0});draw()}}}
+if($('bf'))$('bf').onclick=()=>{clearInterval(iv);ph=2;draw()};
+el.querySelectorAll('button[data-i]').forEach(b=>b.onclick=()=>{ideas[+b.dataset.i].v++;draw()})}
+draw()}
+
+// ===== slides =====
+const TF=['Дұрыс','Бұрыс'];
+const SL=[
+{t:'Кіріспе: білімді игеру',h:`<p>Білімді игеру – ақпаратты қабылдап, түсініп, есте сақтап және іс жүзінде қолдана білу процесі. Бүгінгі сабақтың 4 тақырыбы:</p><ol><li>Белсенді және пассивті игеру әдістері</li><li>Білімнің инженерлік әдістері</li><li>Delphi сараптамалық бағалау әдісі</li><li>Миға шабуыл әдісі</li></ol><div class="ex">📌 Мысал: футбол ережесін оқу – бір нәрсе, ал алаңда ойнап көру – мүлде басқа тәжірибе. Екеуі де білім, бірақ игеру тәсілі әртүрлі.</div><p class="mu">Әр слайдтың соңында тексеру сұрағы, кейбірінде симулятор бар.</p>`,q:['Білімді игеру – ақпаратты тек жаттау деген сөз.',TF,1,'Бұрыс: игеру түсінуді және қолдануды да қамтиды.']},
+{t:'Пассивті игеру әдістері',h:`<p>Пассивті әдісте оқушы ақпаратты дайын күйінде қабылдайды, оның қатысуы шектеулі.</p><ul><li><b>Дәріс тыңдау</b> – мұғалім айтады, студент тыңдайды.</li><li><b>Оқу</b> – оқулық, мақала, кітап.</li><li><b>Аудио-визуал</b> – видеосабақ, подкаст, фильм.</li><li><b>Демонстрация</b> – тәжірибені бақылау.</li></ul><p><b>Артықшылығы:</b> аз уақытта көп ақпарат береді, көпшілікке бірдей жеткізіледі.<br><b>Кемшілігі:</b> есте сақтау төмен, өздігінен ойлау әлсіз дамиды.</p><div class="ex">📌 Мысал: 90 минуттық дәрісті жазбай тыңдасаңыз, бір аптадан кейін көбі ұмытылады (Эббингауздың ұмыту қисығы).</div>`,q:['Қайсысы пассивті әдіс?',['Жоба жасау','Видеосабақ көру','Пікірталас'],1,'Видеосабақ көру: оқушы тек қабылдайды.']},
+{t:'Белсенді игеру әдістері',h:`<p>Белсенді әдісте оқушы өзі әрекет етеді: іздейді, талдайды, талқылайды, жасайды.</p><ul><li><b>Пікірталас, талқылау</b> – көзқарасты дәлелдеу.</li><li><b>Жобалық жұмыс</b> – нақты өнім жасау.</li><li><b>Кейс-стади</b> – нақты жағдайды талдау.</li><li><b>Рөлдік ойын</b> – жағдайды сахналау.</li><li><b>Басқаға үйрету</b> – түсіндіру арқылы бекіту.</li></ul><p><b>Нәтиже:</b> білім ұзақ сақталады, сын тұрғысынан ойлау мен командада жұмыс дағдысы дамиды.</p><div class="ex">📌 Мысал: «Қала экологиясы» жобасы: студенттер сауалнама жүргізеді, деректі талдайды, әкімдікке ұсыныс дайындайды.</div>`,q:['Басқаға түсіндіріп үйрету – белсенді әдіс.',TF,0,'Дұрыс: түсіндіру кезінде білім қайта ойластырылады.']},
+{t:'Оқу пирамидасы',h:`<p>Оқу пирамидасы әдістерді есте сақтау деңгейі бойынша салыстырады: пассивті әдістер төменгі, белсенділері жоғарғы деңгейде.</p><p>Төмендегі симуляторда әр әдіс бойынша шамамен қанша ақпарат сақталатынын көріңіз.</p>`,s:pyr,q:['Пирамида бойынша ең жоғары нәтиже беретін тәсіл?',['Дәріс тыңдау','Оқу','Басқаға үйрету'],2,'Басқаға үйрету шамамен 90% деп көрсетіледі.']},
+{t:'Білім инженериясы',h:`<p><b>Білім инженериясы</b> – сарапшылардан білімді алып, құрылымдап, компьютерлік жүйеге (сараптамалық жүйе, білім базасы) енгізу саласы.</p><h3>Негізгі құрамы</h3><ul><li><b>Сарапшы</b> – білім иесі.</li><li><b>Білім инженері</b> – білімді алып, формалдайтын маман.</li><li><b>Білім базасы</b> – ережелер мен фактілер жиыны.</li><li><b>Шешім шығару механизмі</b> – ережелерді қолданып қорытынды жасайды.</li></ul><h3>Кезеңдері</h3><ol><li>Мәселені анықтау</li><li>Білімді алу</li><li>Білімді ұсыну (ереже, кесте, семантикалық желі)</li><li>Базаны құру және тексеру</li></ol><div class="ex">📌 Мысал: дәрігердің тәжірибесі «ЕГЕР белгі, ОНДА диагноз» ережелеріне айналады.</div>`,q:['Білімді сарапшыдан алып, жүйелеп базаға енгізетін маман?',['Білім инженері','Оқушы','Тестілеуші'],0,'Бұл білім инженерінің негізгі міндеті.']},
+{t:'Білімді алу әдістері',h:`<ul><li><b>Коммуникативті:</b> сұхбат, анкета, бақылау, сараптамалық талқылау.</li><li><b>Мәтіндік:</b> оқулық, нұсқаулық, құжаттарды талдау.</li><li><b>Компьютерлік:</b> деректерден заңдылық табу, машиналық оқыту.</li></ul><p><b>Қиындығы:</b> сарапшы білімінің бір бөлігі жасырын (тәжірибелік) болғандықтан, оны сөзбен айту қиын.</p><div class="ex">📌 Мысал: тәжірибелі жүргізуші жолда не істейтінін түсіндіре алмауы мүмкін, ол әдетке айналған.</div>`,s:es,q:['Сарапшы өз білімінің бәрін оңай сөзбен айта алады.',TF,1,'Бұрыс: жасырын білімді айту қиын, сондықтан бақылау мен сұхбат бірге қолданылады.']},
+{t:'Delphi сараптамалық бағалау әдісі',h:`<p>1950-жылдары АҚШ-тағы RAND корпорациясында жасалған, атауы Дельфі оракулынан алынған. Сарапшылар бір-біріне белгісіз (анонимді) күйде жауап береді, сондықтан беделді адамның ықпалы болмайды.</p><h3>Қадамдары</h3><ol><li>Сарапшылар тобы таңдалады.</li><li>1-тур: анонимді анкета.</li><li>Жауаптар жинақталады (медиана, диапазон) және топқа қайтарылады.</li><li>Сарапшылар бағасын қайта қарайды (2–4 тур).</li><li>Пікірлер жақындағанда (консенсус) сұрау тоқтайды.</li></ol><p><b>Қолданылуы:</b> болжау, тәуекелді бағалау, стратегиялық шешімдер.</p>`,q:['Delphi әдісінің басты ерекшелігі?',['Анонимді, көп турлы сараптама','Бір сағаттық ашық пікірталас','Тек бір сарапшының шешімі'],0,'Анонимділік пен қайталанатын турлар негізгі белгі.']},
+{t:'Delphi: симулятор және мысал',h:`<div class="ex">📌 Мысал: қалалық кәсіпорын жаңа технологияны енгізуді жоспарлайды. 5 маман жылдық үнемді жеке-жеке бағалайды, содан кейін топтың медианасын көріп, бағаларын түзетеді.</div><p>Симуляторда әр тур сайын бағалар медиана жаққа жылжиды.</p>`,s:del,q:['Delphi-де сарапшылар беделді адамға еліктеуі керек.',TF,1,'Бұрыс: анонимділік дәл осыдан сақтайды.']},
+{t:'Миға шабуыл әдісі',h:`<p>Авторы – Алекс Осборн (1950-ж.). Мақсаты – қысқа уақытта көп идея жинау.</p><h3>Төрт ереже</h3><ul><li><b>Сынауға болмайды</b> – бағалау кейін жасалады.</li><li><b>Сан – сапаға апарады</b> – идея неғұрлым көп болса, соғұрлым жақсы.</li><li><b>Ерекше идеяны қолдау</b> – батыл ой құнды.</li><li><b>Біріктіру, дамыту</b> – біреудің ойына сүйену.</li></ul><h3>Кезеңдері</h3><ol><li>Мәселені қою</li><li>Идея генерациясы</li><li>Идеяларды топтау</li><li>Таңдау және бағалау</li></ol><div class="ex">📌 Мысал: дизайн студиясы жаңа жарнама ұранын 10 минутта 50 нұсқа ұсынып, кейін үздік 3-еуін таңдайды.</div>`,q:['Миға шабуылдың идея беру кезеңінде не істеуге болмайды?',['Идеяны сынауға','Идея санын көбейтуге','Идеяны дамытуға'],0,'Сын бағалау кезеңіне қалдырылады.']},
+{t:'Миға шабуыл симуляторы және қорытынды',h:`<p>Төмендегі симуляторда 60 секундта идея жазып көріңіз, сосын дауыс беріңіз.</p>`,s:br,h2:`<h3>Delphi мен миға шабуыл салыстыруы</h3><table><tr><th>Белгі</th><th>Delphi</th><th>Миға шабуыл</th></tr><tr><td>Мақсат</td><td>Бағалау, болжау</td><td>Идея табу</td></tr><tr><td>Қатысушылар</td><td>Анонимді сарапшылар</td><td>Ашық топ</td></tr><tr><td>Ұйымдастыру</td><td>Көп тур, анкета</td><td>Бір отырыс</td></tr></table><p>Бірін-бірі толықтырады: идеяны миға шабуылмен жинап, Delphi арқылы бағалауға болады. 🎉</p>`,q:['Миға шабуылда идеялардың саны маңызды.',TF,0,'Дұрыс: көп идеядан жақсысын таңдау оңай.']}];
+let si=0,sc2=0,ans=new Set();
+function sl(){const s=SL[si];$('slide').style.animation='none';void $('slide').offsetWidth;$('slide').style.animation='';
+$('slide').innerHTML=`<div class="sn">${si+1}</div><h2>${s.t}</h2>${s.h}<div class="sim" id="sim"></div>${s.h2||''}<div class="quiz" id="qz"></div>`;
+if(s.s)s.s($('sim'));
+const [q,o,a,w]=s.q;$('qz').innerHTML=`<h4>❓ Тексеру</h4><p>${q}</p>`+o.map((x,i)=>`<button data-i="${i}">${x}</button>`).join('')+'<p class="fb"></p>';
+$('qz').querySelectorAll('button').forEach(b=>b.onclick=()=>{const i=+b.dataset.i,ok=i==a;if(!ans.has(si)){ans.add(si);if(ok)sc2++}
+$('qz').querySelectorAll('button').forEach((x,j)=>{x.disabled=true;if(j==a)x.classList.add('good');else if(j==i)x.classList.add('wrong')});
+$('qz').querySelector('.fb').innerHTML=(ok?'✅ Дұрыс! ':'❌ Қате. ')+w+` <span class="mu">(Тест: ${sc2}/10)</span>`});
+$('cnt').textContent=`${si+1} / ${SL.length}`;$('pv').disabled=!si;$('nx').disabled=si==SL.length-1;$('pg').style.width=(si+1)*10+'%'}
+$('pv').onclick=()=>{si--;sl()};$('nx').onclick=()=>{si++;sl()};sl();
+
+// ===== 4 pics 1 word =====
+const ph=(kw,n,em)=>kw?`<img src="https://loremflickr.com/400/400/${kw}?lock=${n}" alt="" onerror="this.parentNode.textContent='${em}'">`:em;
+const KW=[['brain','lightbulb','brainstorming','meeting'],['delphi','oracle','questionnaire','experts'],['engineering','blueprint','bridge','engineer'],['running','classroom','workshop','debate'],['lecture','headphones','television','audience'],['simulation','prototype','laboratory','miniature'],['scientist','doctor','professor','expert'],['problem','obstacle','puzzle','maze'],['conversation','dialogue','talking','interview'],['blueprint','architect','drawing','design']];
+const W=[["МИҒАШАБУЫЛ",["🧠","💡","⚡","🗯️"],"Идея санын көбейтуге арналған топтық әдіс (екі сөз, бос орынсыз)"],["ДЕЛФИ",["🏛️","🔮","📋","🧑‍💼"],"Анонимді, көп турлы сараптама әдісі (Delphi)"],["ИНЖЕНЕРЛІК",["⚙️","🏗️","📐","🔧"],"Техникалық, жүйелі шешім жасау тәсіліне қатысты сын есім"],["БЕЛСЕНДІ",["🏃","🙋","🛠️","🗣️"],"Оқушы өзі әрекет ететін игеру түрі"],["ПАССИВТІ",["🎧","📺","📖","😴"],"Ақпаратты дайын күйінде қабылдау түрі"],["МОДЕЛЬДЕУ",["🖥️","🧪","📊","🧩"],"Нысанның үлгісін құрып зерттеу"],["ЭКСПЕРТ",["👨‍🔬","🩺","🎓","🧑‍🏫"],"Саланы терең білетін маман"],["ПРОБЛЕМА",["❓","🚧","🧗","⚠️"],"Шешуді қажет ететін мәселе"],["ДИАЛОГ",["💬","🗣️","🤝","🎙️"],"Екі адамның сұхбаты"],["ЖОБАЛАУ",["📐","🗺️","✏️","🏠"],"Алдын ала жоспар, сызба жасау"]];
+const W0=[["БІЛІМ",["📚","🎓","🧠","📖"],"Оқу, тәжірибе арқылы жинақталған мәлімет жүйесі"],["ИДЕЯ",["💡","✨","🧩","🔦"],"Ойдың жаңа бастамасы, шешім ұсынысы"],["ТОП",["👥","🤝","👫","🧑‍🤝‍🧑"],"Бірге жұмыс істейтін адамдар жиынтығы"],["САРАПШЫ",["👨‍🏫","🧑‍🔬","👩‍💼","🧑‍⚕️"],"Белгілі саланы терең білетін маман"],["ДЕЛФИ",["🏛️","🔮","🏺","🏔️"],"Грек оракулынан аталған сараптамалық әдіс"],["САУАЛНАМА",["📝","✅","📋","❓"],"Сұрақтар тізімі, пікір жинау құралы"],["ПІКІР",["💬","🗣️","👍","👎"],"Адамның көзқарасы, бағасы"],["ОҚУ",["📖","✏️","🎒","🏫"],"Білім алу процесі"],["ТАЛҚЫЛАУ",["🗣️","👥","💬","🎤"],"Мәселені бірге пікір алмасып қарастыру"],["ЖАУАП",["💬","✅","📩","🙋"],"Сұраққа берілген қайтарым"]].slice(0,10);
+const AB="АӘБВГҒДЕЖЗИЙКҚЛМНҢОӨПРСТУҰҮФХҺЦЧШЩЫІЭЮЯ",UP={};
+let gi=0,an2=[],used=[],gs=0,pool=[],fin=false;
+const shuf=a=>a.map(x=>[Math.random(),x]).sort((p,q)=>p[0]-q[0]).map(p=>p[1]);
+function gl(){const [w,p]=W[gi];an2=[];used=[];fin=false;pool=w.split('');while(pool.length<20)pool.push(AB[Math.floor(Math.random()*AB.length)]);pool=shuf(pool);
+$('gn').textContent=`(${gi+1}/10)`;$('pics').innerHTML=p.map((e,k)=>`<div class="pic" data-k="${k}">${UP[gi+'_'+k]?`<img src="${UP[gi+'_'+k]}">`:ph(KW[gi][k],gi*4+k+50,e)}</div>`).join('');
+document.querySelectorAll('.pic').forEach(d=>d.onclick=()=>{const f=document.createElement('input');f.type='file';f.accept='image/*';f.onchange=()=>{const r=new FileReader();r.onload=()=>{UP[gi+'_'+d.dataset.k]=r.result;d.innerHTML=`<img src="${r.result}">`};if(f.files[0])r.readAsDataURL(f.files[0])};f.click()});
+$('hint').textContent='';$('gm').textContent='';$('gx').textContent=gi==9?'Нәтиже':'Келесі сөз →';dr()}
+function dr(){const n=W[gi][0].length;$('cells').innerHTML=Array.from({length:n},(_,i)=>`<span data-i="${i}">${an2[i]?an2[i][0]:''}</span>`).join('');
+$('pool').innerHTML=pool.map((l,i)=>`<button data-i="${i}" ${used.includes(i)?'disabled':''}>${l}</button>`).join('');
+document.querySelectorAll('#cells span').forEach(s=>s.onclick=()=>{if(fin)return;const i=+s.dataset.i;if(an2[i]){used=used.filter(u=>u!=an2[i][1]);an2.splice(i,1);$('gm').textContent='';dr()}});
+document.querySelectorAll('#pool button').forEach(b=>b.onclick=()=>{if(fin||an2.length>=n)return;const i=+b.dataset.i;an2.push([pool[i],i]);used.push(i);dr();if(an2.length==n)chk()})}
+function chk(){if(an2.map(a=>a[0]).join('')==W[gi][0]){fin=true;gs++;$('sc').textContent=gs;$('gm').innerHTML='<span class="ok">✅ Дұрыс! Жарайсың!</span>';boom()}else $('gm').innerHTML='<span class="bad">❌ Қате, ұяшықты басып әріпті өшіріп қайта көр</span>'}
+$('hb').onclick=()=>$('hint').textContent='💡 '+W[gi][2];
+$('gx').onclick=()=>{if(gi==9){$('gm').innerHTML=`<span class="ok">🏁 Нәтиже: ${gs} / 10</span>`;gi=-1;gs=0;$('sc').textContent=0;$('gx').textContent='Қайта бастау';fin=true;return}gi++;gl()};
+gl();
+
+// ===== lottery =====
+const ST=["Құрбанбеков Бағлан","Қазиев Жандос","Қаныбек Диас","Қуантқан Динара","Нұрланұлы Досымжан","Оразбай Ақнұр","Өтепханқызы Жадыра","Райымбеков Досымжан","Рахымжан Жібек","Смағұлова Арайлым"];
+const P=[["Үш қорап: «алма», «алмұрт», «аралас». Барлық жапсырма қате. Қай қораптан бір жеміс алып, бәрін дұрыс анықтайсың?","«Аралас» деп жазылған қораптан: ол шын мәнінде таза алма не таза алмұрт, қалғандары содан шығады."],["Алмас Бектен үлкен, Сая Алмастан үлкен. Үшеуінің ішінде ең кішісі кім?","Бек"],["Қатарды жалғастыр: 2, 6, 12, 20, 30, ?","42 (айырма 4, 6, 8, 10, 12)"],["Екі әке мен екі бала бар, бірақ барлығы 3 адам ғана. Қалай?","Ата, әке, бала: ортадағы адам бір мезгілде әке де, бала да."],["5 мысық 5 тышқанды 5 минутта ұстайды. 100 мысық 100 тышқанды неше минутта ұстайды?","5 минутта (әр мысыққа 1 тышқаннан)."]];
+const PR=["Керемет! Ақылды екенсің, сенімен мақтанамыз! 🌟","Тамаша жауап! Логикаң өте мықты! 👏","Жарайсың! Нағыз зерек оқушысың! 🏆","Ойпырмай, дәл тауып қойдың! 🎉","Өте жақсы! Осылай жалғастыра бер! 💪"];
+const CO=["Әттеген-ай! Келесіде міндетті түрде шығады! 🍀","Өкінішті, бірақ қиналма, қателіктен үйренеміз! 🌱","Әттеген-ай, сәл ғана жетпеді! 💫","Қам жеме, ең бастысы – әрекет еткенің! 🤗","Әттеген-ай! Келесі жолы міндетті шығарасың! 🌈"];
+let rem,given,rot,busy,drawn;
+function boom(){for(let i=0;i<30;i++){const s=document.createElement('span');s.className='cf';s.textContent=['🎉','⭐','✨','🎊'][i%4];s.style.setProperty('--x',(Math.random()-.5)*600+'px');s.style.setProperty('--y',(Math.random()*-300-50)+'px');document.body.appendChild(s);setTimeout(()=>s.remove(),1800)}}
+function ls(){rem=[...ST];given=0;rot=0;busy=false;drawn=[];$('res').innerHTML='';$('hist').innerHTML='';$('wheel').style.transition='none';$('wheel').style.transform='rotate(0deg)';$('go').disabled=false;wd()}
+function wd(){const c=$('wheel').getContext('2d'),n=rem.length,a=2*Math.PI/n;c.clearRect(0,0,560,560);$('left').textContent=n;$('done').textContent=given;
+$('chips').innerHTML=ST.map(s=>`<span class="chip ${rem.includes(s)?'':'gone'}">${s.split(' ')[1]} ${s[0]}.</span>`).join('');
+const col=['#6366f1','#ec4899','#f59e0b','#10b981','#06b6d4','#8b5cf6','#ef4444','#84cc16','#f97316','#3b82f6'];
+c.beginPath();c.arc(280,280,272,0,7);c.fillStyle='#1e1b4b';c.fill();
+for(let i=0;i<n;i++){c.beginPath();c.moveTo(280,280);c.arc(280,280,250,-Math.PI/2+i*a,-Math.PI/2+(i+1)*a);c.fillStyle=col[ST.indexOf(rem[i])%10];c.fill();c.strokeStyle='#fff';c.lineWidth=2;c.stroke();
+c.save();c.translate(280,280);c.rotate(-Math.PI/2+(i+.5)*a);c.fillStyle='#fff';c.font=`bold ${n>6?17:20}px sans-serif`;c.textAlign='right';c.fillText(rem[i].split(' ')[1]+' '+rem[i][0]+'.',235,6);c.restore()}
+for(let k=0;k<24;k++){const x=280+261*Math.cos(k*Math.PI/12),y=280+261*Math.sin(k*Math.PI/12);c.beginPath();c.arc(x,y,5,0,7);c.fillStyle=k%2?'#fde047':'#fff';c.fill()}}
+$('go').onclick=()=>{if(busy||given>=5||!rem.length)return;busy=true;$('go').disabled=true;$('res').innerHTML='';const n=rem.length,i=Math.floor(Math.random()*n),ad=360/n;
+rot+=2160+((360-(i+.5)*ad-(rot%360))%360+360)%360;const w=$('wheel');w.style.transition='transform 5s cubic-bezier(.12,.7,.1,1)';w.style.transform=`rotate(${rot}deg)`;
+setTimeout(()=>{const nm=rem[i],fn=nm.split(' ')[1];$('res').innerHTML=`<div class="box"><h3 style="margin-top:0">🎯 ${nm}</h3><p><b>Есеп ${given+1}:</b> ${P[given][0]}</p><button id="rv">Жауабын көрсету</button><p id="av" class="mu"></p><p><b>${fn}, дұрыс шығардың ба?</b></p><button id="yes" class="pri">✅ Иә</button> <button id="no">❌ Жоқ</button><p id="fb2" class="msg"></p></div>`;
+$('rv').onclick=()=>$('av').textContent='Жауап: '+P[given][1];
+const f=ok=>{$('yes').disabled=$('no').disabled=true;$('fb2').innerHTML=ok?`<span class="ok">${fn}, ${PR[Math.floor(Math.random()*5)]}</span>`:`<span class="bad">${fn}, ${CO[Math.floor(Math.random()*5)]}</span>`;if(ok)boom();
+$('hist').insertAdjacentHTML('beforeend',`<li>${nm}: есеп ${given+1} ${ok?'✅':'❌'}</li>`);rem.splice(i,1);given++;rot=0;busy=false;
+setTimeout(()=>{w.style.transition='none';w.style.transform='rotate(0deg)';wd();if(given>=5)$('res').insertAdjacentHTML('beforeend','<p class="msg">🏁 5 есеп аяқталды! «Қайта бастау» арқылы қайта ойнауға болады.</p>');else $('go').disabled=false},400)};
+$('yes').onclick=()=>f(true);$('no').onclick=()=>f(false)},5200)};
+$('rst').onclick=ls;ls();
+function upl(d,k){const f=document.createElement('input');f.type='file';f.accept='image/*';f.onchange=()=>{const r=new FileReader();r.onload=()=>{UP[k]=r.result;d.innerHTML=`<img src="${r.result}">`};if(f.files[0])r.readAsDataURL(f.files[0])};f.click()}
+// erudition
+let et;
+const EQ=[['Қазақстанның астанасы қай қала?',['Астана','Алматы','Шымкент','Қарағанды'],0,'🏙️','astana'],['Жер Күнді айналып шығуға шамамен қанша уақыт кетеді?',['1 тәулік','1 ай','1 жыл','10 жыл'],2,'🌍','earth'],['Эйфель мұнарасы қай қалада орналасқан?',['Лондон','Париж','Рим','Берлин'],1,'🗼','eiffeltower'],['Судың химиялық формуласы?',['CO₂','H₂O','O₂','NaCl'],1,'💧','water'],['«Абай жолы» романының авторы кім?',['Мұхтар Әуезов','Ілияс Жансүгіров','Сәкен Сейфуллин','Мағжан Жұмабаев'],0,'📚','book'],['Ең үлкен мұхит?',['Атлант','Тынық','Үнді','Солтүстік Мұзды'],1,'🌊','ocean'],['Футболда алаңда бір команда неше ойыншымен ойнайды?',['9','10','11','12'],2,'⚽','football'],['Қай планета «Қызыл планета» деп аталады?',['Венера','Марс','Юпитер','Сатурн'],1,'🔴','mars'],['Әлемдегі ең биік тау шыңы?',['Эверест','Мон-Блан','Килиманджаро','Эльбрус'],0,'⛰️','mountain'],['Бір сағатта неше минут бар?',['30','60','90','100'],1,'⏰','clock'],['Қай жануар «шөл кемесі» деп аталады?',['Түйе','Жылқы','Есек','Піл'],0,'🐪','camel'],['Ұлы Жібек жолы қай құрлықтарды жалғаған?',['Азия мен Еуропаны','Америка мен Африканы','Австралия мен Антарктиданы','Тек Африканы'],0,'🐫','silkroad'],['Компьютердің «миы» деп қай бөлігін айтады?',['Процессор','Тінтуір','Пернетақта','Монитор'],0,'💻','computerchip'],['Ең жылдам құрлық жануары?',['Гепард','Арыстан','Жылқы','Қасқыр'],0,'🐆','cheetah'],['Қазақстанның Тәуелсіздік күні қашан?',['25 қазан','16 желтоқсан','30 тамыз','1 мамыр'],1,'🇰🇿','kazakhstan']];
+const EQ0=[['Белсенді әдіске қайсысы жатады?',['Дәріс тыңдау','Жобалық жұмыс','Видео көру','Оқулық оқу'],1,'🛠️'],['Қайсысы пассивті әдіс?',['Кейс-стади','Рөлдік ойын','Дәріс тыңдау','Пікірталас'],2,'🎧'],['Оқу пирамидасында ең жоғары нәтиже беретін тәсіл?',['Басқаға үйрету','Оқу','Дәріс','Демонстрация'],0,'🔺'],['Білім инженериясы дегеніміз не?',['Ғимарат салу','Сарапшы білімін жүйеге енгізу','Компьютер жөндеу','Оқулық жазу'],1,'⚙️'],['Білім базасының құрамы?',['Тек суреттер','Ережелер мен фактілер','Тек сандар','Музыка'],1,'🗄️'],['«ЕГЕР... ОНДА» түрінде білімді ұсыну?',['Ереже (продукция)','Кесте','Сурет','Диаграмма'],0,'📜'],['Delphi атауы қайдан алынған?',['Грек оракулынан','Рим императорынан','Қытай тақпағынан','Ағылшын қаласынан'],0,'🏛️'],['Delphi әдісінің басты ерекшелігі?',['Анонимділік','Дауыс көтеру','Билік','Ойын'],0,'🎭'],['Delphi әдісі қай корпорацияда жасалды?',['NASA','RAND','IBM','Google'],1,'🏢'],['Миға шабуыл авторы?',['Алекс Осборн','Эббингауз','Тьюринг','Эйнштейн'],0,'🧠'],['Миға шабуылдың бірінші ережесі?',['Идеяны сынамау','Дереу бағалау','Бір идея беру','Жасырын жауап'],0,'💡'],['Эббингауз нені зерттеді?',['Ұмыту қисығын','Электрді','Жылуды','Магнетизмді'],0,'📉'],['Кейс-стади дегеніміз?',['Нақты жағдайды талдау','Өлең жаттау','Спорт','Сурет салу'],0,'📂'],['Жасырын білімнің мысалы?',['Анықтама мәтіні','Велосипед тебу дағдысы','Заң','Кесте'],1,'🚴'],['Delphi мен миға шабуылды қалай ұштастыруға болады?',['Миға шабуылмен идея жинап, Delphi-мен бағалау','Delphi-мен идея жинап, миға шабуылмен ақша табу','Байланысы жоқ','Тек жеке оқуда қолданылады'],0,'🤝']];
+let ei=0,es2=0;
+function er(){const bx=$('ebox');
+if(ei>=15){bx.innerHTML=`<h3>🏁 Нәтиже: ${es2} / 15</h3><p>${es2>=12?'Керемет! Тақырыпты өте жақсы меңгердің! 🌟':es2>=8?'Жақсы! Сәл қайталасаң, тамаша болады! 💪':'Әттеген-ай! Презентацияны қайта қарап, тағы байқап көр! 🍀'}</p><button class="pri" id="er0">↺ Қайта ойнау</button>`;$('er0').onclick=()=>{ei=0;es2=0;er()};return}
+const [q,o,a,em,kw]=EQ[ei],ord=shuf(o.map((t,i)=>[t,i==a]));
+bx.innerHTML=`<div class="mu">Сұрақ ${ei+1} / 15 · Ұпай: <b>${es2}</b> · ⏱ <b id="et">15</b> с</div><div class="pic" id="eimg" style="max-width:200px;margin:10px auto">${UP['e'+ei]?`<img src="${UP['e'+ei]}">`:ph(kw,ei+1,em)}</div><p class="mu small" style="text-align:center">Суретті басып, өз фотоңызды жүктеңіз</p><h3 style="text-align:center">${q}</h3>`+ord.map(([t],i)=>`<button class="opt" data-i="${i}">${'ABCD'[i]}) ${t}</button>`).join('')+'<p class="msg" id="em"></p><div style="text-align:right"><button class="pri" id="en" disabled>Келесі →</button></div>';
+$('eimg').onclick=()=>upl($('eimg'),'e'+ei);
+clearInterval(et);let tl=15;et=setInterval(()=>{if(!$('et')){clearInterval(et);return}tl--;$('et').textContent=tl;if(tl<=0){clearInterval(et);bx.querySelectorAll('.opt').forEach((x,j)=>{x.disabled=true;if(ord[j][1])x.classList.add('good')});$('em').innerHTML='<span class="bad">⏰ Уақыт бітті!</span>';$('en').disabled=false}},1000);
+bx.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{clearInterval(et);const i=+b.dataset.i,ok=ord[i][1];bx.querySelectorAll('.opt').forEach((x,j)=>{x.disabled=true;if(ord[j][1])x.classList.add('good');else if(j==i)x.classList.add('wrong')});if(ok){es2++;boom()}$('em').innerHTML=ok?'<span class="ok">✅ Дұрыс!</span>':'<span class="bad">❌ Қате</span>';$('en').disabled=false});
+$('en').onclick=()=>{ei++;er()}}
+er();
+// jeopardy
+const J=[['Әдістер',[['Оқушы ақпаратты дайын күйінде қабылдайтын игеру түрі?','Пассивті'],['Нақты жағдайды талдайтын белсенді әдіс?','Кейс-стади'],['Оқу пирамидасында ең жоғары нәтиже беретін тәсіл?','Басқаға үйрету'],['Ұмыту қисығын зерттеген ғалым?','Эббингауз']]],['Білім инженериясы',[['Білімді алып, формалдайтын маман?','Білім инженері'],['Ережелер мен фактілер жиыны?','Білім базасы'],['«ЕГЕР... ОНДА» түріндегі білім ұсыну тәсілі?','Ереже (продукциялық ереже)'],['Сарапшы сөзбен айта алмайтын тәжірибелік білім?','Жасырын білім']]],['Delphi',[['Delphi атауы қай елдің оракулынан алынған?','Грекия'],['Delphi-де сарапшылар қандай күйде жауап береді?','Анонимді'],['Топтық нәтиже ретінде жиі қолданылатын көрсеткіш?','Медиана'],['Delphi әдісі қай корпорацияда жасалған?','RAND']]],['Миға шабуыл',[['Әдістің авторы кім?','Алекс Осборн'],['Идея беру кезеңінде нені жасауға болмайды?','Сынауға'],['Идеялар жиналған соң қандай кезең жүреді (идеяларды ...)?','Топтау'],['Delphi мен миға шабуылдың қайсысы идея табуға арналған?','Миға шабуыл']]]];
+let jd=new Set(),js=[0,0],jt=0;
+function jr(){const b=$('jbox'),tn=['1-топ','2-топ'];
+let h=`<div class="stats">${[0,1].map(i=>`<div style="${jt==i&&jd.size<16?'outline:3px solid var(--ac)':''}">${tn[i]}<b>${js[i]}</b></div>`).join('')}</div>`;
+if(jd.size>=16)h+=`<p class="msg">🏁 ${js[0]==js[1]?'Тең ойын! 🤝':(js[0]>js[1]?'1-топ':'2-топ')+' жеңді! Құттықтаймыз! 🎉'}</p>`;else h+=`<p class="mu" style="text-align:center">Кезек: <b>${tn[jt]}</b>. Сұрақты таңдаңыз.</p>`;
+h+='<div class="jg">'+J.map(c=>`<div class="jh">${c[0]}</div>`).join('')+[0,1,2,3].map(r=>J.map((c,ci)=>`<button class="jb" data-c="${ci}" data-r="${r}" ${jd.has(ci+'-'+r)?'disabled':''}>${jd.has(ci+'-'+r)?'':(r+1)*100}</button>`).join('')).join('')+'</div><div id="jq"></div><div style="text-align:center;margin-top:10px"><button id="jx">↺ Қайта бастау</button></div>';
+b.innerHTML=h;
+b.querySelectorAll('.jb').forEach(x=>x.onclick=()=>{const c=+x.dataset.c,r=+x.dataset.r,[q,a]=J[c][1][r];$('jq').innerHTML=`<div class="box"><h3 style="margin-top:0">${J[c][0]} · ${(r+1)*100}</h3><p>${q}</p><button id="ja">Жауапты көрсету</button><p id="jat" class="mu"></p><p><b>${tn[jt]}</b> дұрыс жауап берді ме?</p><button class="pri" id="jy">✅ Иә</button> <button id="jn">❌ Жоқ</button></div>`;
+$('ja').onclick=()=>$('jat').textContent='Жауап: '+a;
+const f=ok=>{if(ok){js[jt]+=(r+1)*100;boom()}jd.add(c+'-'+r);jt=1-jt;jr()};$('jy').onclick=()=>f(true);$('jn').onclick=()=>f(false)});
+$('jx').onclick=()=>{jd=new Set();js=[0,0];jt=0;jr()}}
+jr();
+</script></body></html>
